@@ -33,21 +33,15 @@
       </div>
     </section>
 
-    <!-- 数据更新 -->
+    <!-- 名单维护说明 -->
     <section class="admin-card">
-      <h2>更新数据（覆盖导入）</h2>
-      <p class="hint">上传新的 Excel（.xlsx/.xls）或 CSV 文件，四列：<b>姓名</b>、<b>桌号</b>、<b>人数</b>、<b>身份</b>（人数可不填，默认 1 人 = 占 1 个位置；身份可不填，如 A公司/男方亲友）。确认后将清空旧数据并写入新数据。</p>
-      <label class="file-btn" for="fileInput">选择文件</label>
-      <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" hidden />
-      <div id="fileName" class="file-name"></div>
-      <div id="preview" class="preview"></div>
-      <button id="uploadBtn" class="upload-btn" type="button" disabled>确认覆盖并更新</button>
-      <div id="uploadResult" class="upload-result"></div>
+      <h2>名单更新</h2>
+      <p class="hint">名单为加密存储，更新请提供新名单文件（姓名 / 桌号 / 人数 / 身份），由维护人员处理后发布。</p>
     </section>
   </div>
 
   <script src="./config.js?v=3"></script>
   <script src="./xlsx.full.min.js"></script>
-  <script type="module" src="./admin.js?v=12"></script>
+  <script type="module" src="./admin.js?v=13"></script>
 </body>
 </html>

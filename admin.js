@@ -186,64 +186,7 @@ function extractGuests(rows) {
   return guests;
 }
 
-// ===== 3. 事件绑定 =====
-const fileInput = document.getElementById('fileInput');
-const fileName = document.getElementById('fileName');
-const preview = document.getElementById('preview');
-const uploadBtn = document.getElementById('uploadBtn');
-const uploadResult = document.getElementById('uploadResult');
-
-let pendingGuests = null;
-
-fileInput.addEventListener('change', async () => {
-  const file = fileInput.files && fileInput.files[0];
-  if (!file) return;
-  fileName.textContent = `已选择：${file.name}`;
-  preview.innerHTML = '<div class="loading">解析中…</div>';
-  uploadBtn.disabled = true;
-  uploadResult.innerHTML = '';
-
-  try {
-    const rows = await parseFile(file);
-    pendingGuests = extractGuests(rows);
-    if (pendingGuests.length === 0) {
-      preview.innerHTML = '<div class="empty">未解析到有效数据，请确认文件包含「姓名」「桌号」两列（人数列可选）。</div>';
-      return;
-    }
-    const tables = new Set(pendingGuests.map((g) => g.table_no));
-    const totalPeople = pendingGuests.reduce((s, g) => s + (g.count || 1), 0);
-    const invalid = [...tables].filter((t) => !validTables.has(t));
-    preview.innerHTML = `
-      <div class="preview-ok">
-        解析到 <b>${pendingGuests.length}</b> 组宾客 · 共 <b>${totalPeople}</b> 人，覆盖 <b>${tables.size}</b> 张桌
-        ${invalid.length ? `<br/><span class="warn">⚠ 以下桌号不在桌位图中：${invalid.map((n) => esc(String(n))).join('、')}</span>` : ''}
-        <br/><span class="sample">示例：${pendingGuests.slice(0, 3).map((g) => `${esc(g.name)}→${g.table_no}号(${g.count || 1}人)`).join('，')}…</span>
-      </div>`;
-    uploadBtn.disabled = false;
-  } catch (err) {
-    preview.innerHTML = `<div class="empty">解析失败：${esc(err.message || err)}</div>`;
-  }
-});
-
-uploadBtn.addEventListener('click', async () => {
-  if (!pendingGuests || pendingGuests.length === 0) return;
-  uploadBtn.disabled = true;
-  uploadBtn.textContent = '导入中…';
-  uploadResult.innerHTML = '<div class="loading">正在覆盖数据…</div>';
-
-  const r = await callImportGuests(pendingGuests);
-
-  if (r && r.code === 0) {
-    uploadResult.innerHTML = `<div class="preview-ok">✅ 导入成功：写入 ${r.imported} 条，清除 ${r.deleted} 条旧数据。</div>`;
-    await loadGuests(); // 刷新名单
-  } else {
-    uploadResult.innerHTML = `<div class="warn">❌ 导入失败：${esc((r && r.msg) || '未知错误')}<br/>若提示数据库未初始化，请先在云开发控制台初始化数据库。</div>`;
-  }
-  uploadBtn.textContent = '确认覆盖并更新';
-  uploadBtn.disabled = false;
-});
-
-// ===== 4. 下载数据（导出 Excel，与上传格式一致：姓名/桌号/人数/身份）=====
+// ===== 3. 下载数据（导出 Excel：姓名/桌号/人数/身份）=====
 function downloadData() {
   if (!currentGuests || currentGuests.length === 0) {
     alert('当前没有可下载的数据（先刷新名单）。');
