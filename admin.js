@@ -53,19 +53,19 @@ async function loadGuests() {
   const statsEl = document.getElementById('stats');
   listEl.innerHTML = '<div class="loading">加载中…</div>';
 
+  // 站点区分：GitHub 站 = 加密备份（仅概览）；上海站 = 明文名单（完整明细 + 下载）
+  const isGithub = /github\.io$/.test(window.location.hostname);
   let data = null;
   let updatedAt = null;
-  let source = '云端数据库';
-
-  const result = await callListGuests();
-  if (result != null) {
-    data = result.data;
-    updatedAt = result.updatedAt;
-  } else {
-    // 云端不可用（加密后的本地 JSON 无法明文显示，不再回退）
-    data = [];
-    source = '云端数据库不可用（本地名单已加密，管理页仅支持云端数据）';
-  }
+  let source = '';
+  try {
+    const res = await fetch(isGithub ? './guests.json?v=9' : './3jk4uinto7d8.json?v=1');
+    if (res.ok) {
+      data = await res.json();
+      source = isGithub ? 'GitHub 加密备份' : '明文名单（上海站）';
+    }
+  } catch (e) { /* 忽略 */ }
+  if (!data) { data = []; source = '加载失败'; }
 
   if (!data || data.length === 0) {
     currentGuests = [];
@@ -75,11 +75,18 @@ async function loadGuests() {
   }
   currentGuests = data;
 
-  const tables = new Set(data.map((g) => g.table_no));
-  const totalPeople = data.reduce((s, g) => s + (Number(g.count) || 1), 0);
+  const isEncrypted = !!(data[0] && data[0].h && !data[0].name);
+  const totalPeople = data.reduce((s, g) => s + (Number(isEncrypted ? g.c : g.count) || 1), 0);
   const totalTables = validTables.size + 1; // 21 张宾客桌 + 1 张主桌 = 22
   statsEl.innerHTML = `共 <b>${data.length}</b> 组宾客 · <b>${totalPeople}</b> 人 · <b>${totalTables}</b> 张桌 · 数据源：${source}<br/>数据时间：<b>${formatTime(updatedAt)}</b>`;
 
+  // 加密模式（GitHub 站）：不显示姓名明细，仅提示
+  if (isEncrypted) {
+    listEl.innerHTML = `<div class="empty">当前为加密备份模式（GitHub 站）<br/>名单明细仅部署在上海站，此处不显示</div>`;
+    return;
+  }
+
+  // 明文模式（上海站）：完整名单
   // 按桌号分组（升序，主桌 28 自然排最后）
   const byNo = {};
   data.forEach((g) => {
@@ -239,7 +246,12 @@ uploadBtn.addEventListener('click', async () => {
 // ===== 4. 下载数据（导出 Excel，与上传格式一致：姓名/桌号/人数/身份）=====
 function downloadData() {
   if (!currentGuests || currentGuests.length === 0) {
-    alert('当前没有可下载的数据（先刷新名单或导入数据）。');
+    alert('当前没有可下载的数据（先刷新名单）。');
+    return;
+  }
+  // 加密模式（GitHub 站）无法导出明文
+  if (currentGuests[0] && currentGuests[0].h && !currentGuests[0].name) {
+    alert('GitHub 备份站为加密模式，请在上海站管理页下载明文名单。');
     return;
   }
   const rows = currentGuests.map((g) => ({

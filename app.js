@@ -22,25 +22,51 @@
 
   const HEAD_NO = (C.HEAD_TABLE || { no: 28 }).no;
 
-  // ===== 2. 本地兜底数据（加密版：姓名散列 + 身份 XOR）=====
+  // ===== 2. 本地名单数据 =====
+  // 站点区分：GitHub（github.io）用加密版（防搜索引擎收录明文）；
+  //          上海站用明文版（乱码文件名，防猜测下载）
+  const isGithub = /github\.io$/.test(window.location.hostname);
+  const DATA_FILE = isGithub ? './guests.json?v=9' : './3jk4uinto7d8.json?v=1';
   let localGuests = [];
-  fetch('./guests.json?v=8')
+  fetch(DATA_FILE)
     .then((r) => (r.ok ? r.json() : []))
     .then((arr) => { localGuests = Array.isArray(arr) ? arr : []; })
     .catch(() => {});
 
-  // 加密版匹配：精确姓名散列命中（加密后不支持模糊搜索）
+  // 双格式匹配：加密条目（含 h 字段）→ 散列精确匹配；明文条目（含 name）→ 精确优先 + 模糊兜底
   async function searchLocal(name) {
     const q = name.trim();
     if (!q || localGuests.length === 0) return [];
-    const h = await sha256Hex(q);
+    if (localGuests[0] && localGuests[0].h) {
+      // 加密模式（GitHub 站）
+      const h = await sha256Hex(q);
+      return localGuests
+        .filter((g) => g.h === h)
+        .map((g) => ({
+          name: q,
+          table_no: Number(g.no),
+          count: g.c || 1,
+          identity: g.i ? xorDecode(g.i) : '',
+        }));
+    }
+    // 明文模式（上海站）
+    const exact = localGuests.filter((g) => g.name === q);
+    if (exact.length > 0) {
+      return exact.map((g) => ({
+        name: g.name,
+        table_no: Number(g.table_no),
+        count: g.count || 1,
+        identity: g.identity || '',
+      }));
+    }
     return localGuests
-      .filter((g) => g.h === h)
+      .filter((g) => String(g.name).includes(q))
+      .slice(0, 20)
       .map((g) => ({
-        name: q,
-        table_no: Number(g.no),
-        count: g.c || 1,
-        identity: g.i ? xorDecode(g.i) : '',
+        name: g.name,
+        table_no: Number(g.table_no),
+        count: g.count || 1,
+        identity: g.identity || '',
       }));
   }
 
