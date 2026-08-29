@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#faf3eb" />
+  <title>欢迎参加我们的婚礼</title>
+  <meta name="description" content="XuYunan & WuHao 婚礼 · 欢迎扫码查询您的座位" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="page">
+    <!-- 座位结果卡片 -->
+    <section class="search-card">
+      <div id="resultCard" class="result-area"></div>
+    </section>
+
+    <!-- 桌位图（高亮命中桌） -->
+    <section class="floorplan-card">
+      <div class="floorplan-wrap">
+        <svg id="floorplan" viewBox="5 0 947 1670" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+      <button id="backBtn" class="back-btn" type="button">← 返回重新查询</button>
+    </section>
+
+    <footer class="foot">如有疑问，请联系现场工作人员 ❤</footer>
+  </div>
+
+  <script src="./config.js?v=5"></script>
+  <script type="module" src="./result.js?v=2"></script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#faf3eb" />
+  <title>欢迎参加我们的婚礼</title>
+  <meta name="description" content="XuYunan & WuHao 婚礼 · 欢迎扫码查询您的座位" />
+  <meta property="og:title" content="欢迎参加我们的婚礼" />
+  <meta property="og:description" content="XuYunan & WuHao 婚礼 · 请扫码查询您的座位" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="page">
+    <!-- 顶部：名字 + 副标题 + 婚纱照 -->
+    <header class="hero">
+      <h1 class="couple" id="coupleNames">XuYunan &amp; WuHao</h1>
+      <p class="subtitle" id="subtitle">欢迎光临，请输入您的姓名查询座位</p>
+      <div class="hero-photo">
+        <img src="./hero.jpg?v=1" alt="XuYunan &amp; WuHao 婚纱照" />
+        <span class="photo-deco photo-deco-tl"></span>
+        <span class="photo-deco photo-deco-tr"></span>
+        <span class="photo-deco photo-deco-bl"></span>
+        <span class="photo-deco photo-deco-br"></span>
+      </div>
+    </header>
+
+    <!-- 查询区 -->
+    <section class="search-card">
+      <div class="search-row">
+        <input
+          id="nameInput"
+          class="search-input"
+          type="text"
+          inputmode="search"
+          autocomplete="off"
+          placeholder="请输入您的姓名"
+          maxlength="20"
+        />
+        <button id="searchBtn" class="search-btn" type="button">查询</button>
+      </div>
+
+      <!-- 结果区（重名选择 / 未找到） -->
+      <div id="resultArea" class="result-area" hidden></div>
+    </section>
+
+    <footer class="foot">如有疑问，请联系现场工作人员 ❤</footer>
+  </div>
+
+  <script src="./config.js?v=5"></script>
+  <script type="module" src="./app.js?v=19"></script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+:root {
+  --bg: #faf3eb;
+  --bg-2: #f3e9d8;
+  --ink: #5b4a3f;
+  --ink-soft: #8a7466;
+  --accent: #c98a8a;
+  --accent-deep: #a96a6a;
+  --gold: #b08a52;
+  --gold-deep: #8a6a3a;
+  --gold-light: #c9b48a;
+  --card: #ffffff;
+  --line: #eadcc8;
+  --radius: 18px;
+  --shadow: 0 8px 30px rgba(140, 100, 60, 0.10);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 0 18px 40px;
+}
+
+/* ===== 顶部：名字 + 副标题 + 婚纱照 ===== */
+.hero { text-align: center; padding: 28px 0 18px; }
+
+/* 照片卡：宽度 316 → 278px（左右各缩 6% = 总 -12%），
+   高度 410px 保持，超出部分居中裁剪，保留人物主体 */
+.hero-photo {
+  position: relative;
+  width: 278px;
+  max-width: calc(100% - 36px);
+  height: 410px;
+  margin: 16px auto 0;
+  padding: 5px;
+  border: 1.5px solid var(--gold-light);
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(140, 100, 60, 0.18);
+  overflow: visible;
+}
+.hero-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 13px;
+  object-fit: cover;
+  object-position: 50% 25%;
+}
+/* 照片四角的小金色心形装饰（用伪元素拼出 ❤ 形状） */
+.photo-deco {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+}
+.photo-deco::before,
+.photo-deco::after {
+  content: '';
+  position: absolute;
+  width: 7px;
+  height: 11px;
+  background: var(--gold);
+  border-radius: 7px 7px 0 0;
+  top: 0;
+}
+.photo-deco::before { left: 0; transform: rotate(-45deg); transform-origin: 0 100%; }
+.photo-deco::after  { right: 0; transform: rotate(45deg);  transform-origin: 100% 100%; }
+.photo-deco-tl { top: -4px;    left: -4px; }
+.photo-deco-tr { top: -4px;    right: -4px; }
+.photo-deco-bl { bottom: -4px; left: -4px; }
+.photo-deco-br { bottom: -4px; right: -4px; }
+
+.couple {
+  font-family: "Snell Roundhand", "Apple Chancery", "Brush Script MT", "Songti SC", "STSong", cursive;
+  font-size: 36px;
+  font-weight: 400;
+  color: var(--gold-deep);
+  letter-spacing: 1px;
+  line-height: 1.2;
+}
+.subtitle {
+  color: var(--ink-soft);
+  font-size: 13px;
+  margin-top: 8px;
+  letter-spacing: 0.5px;
+}
+
+/* ===== 查询卡片 ===== */
+.search-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.search-row { display: flex; gap: 10px; }
+.search-input {
+  flex: 1;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 16px;
+  color: var(--ink);
+  outline: none;
+  background: #fff;
+  transition: border-color .2s;
+}
+.search-input:focus { border-color: var(--gold); }
+.search-btn {
+  border: none;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold-deep));
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 0 22px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform .1s, opacity .2s;
+}
+.search-btn:active { transform: scale(0.96); }
+.search-btn:disabled { opacity: .6; }
+
+/* ===== 结果区 ===== */
+.result-area { margin-top: 16px; }
+.result-card {
+  text-align: center;
+  padding: 18px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fbf3e9, #f3e2cc);
+  border: 1px solid #e6d4b8;
+  animation: pop .35s ease;
+}
+@keyframes pop {
+  from { transform: scale(.96); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.result-label { color: var(--ink-soft); font-size: 13px; }
+.result-table { font-size: 22px; font-weight: 700; color: var(--gold-deep); margin: 4px 0 2px; }
+.result-table .num { font-size: 40px; }
+.result-table .couple-icon { font-size: 40px; line-height: 1.2; display: inline-block; }
+.multi-table .couple-icon { font-size: 16px; }
+.result-name { color: var(--ink); font-size: 15px; }
+
+/* 结果页返回按钮 */
+.back-btn {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid var(--gold-light);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--gold-deep);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.back-btn:active { background: var(--bg-2); }
+.result-empty {
+  text-align: center;
+  padding: 16px;
+  color: var(--ink-soft);
+  font-size: 14px;
+}
+.multi-list { display: flex; flex-direction: column; gap: 8px; }
+.multi-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition: border-color .2s;
+}
+.multi-item:active { border-color: var(--gold); }
+.multi-name { font-size: 15px; font-weight: 600; }
+.multi-id {
+  font-size: 12px;
+  color: var(--gold-deep);
+  background: var(--bg-2);
+  padding: 2px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+.multi-table { font-size: 14px; color: var(--gold-deep); font-weight: 700; }
+.result-tip { font-size: 13px; color: var(--ink-soft); margin-top: 10px; text-align: center; }
+.loading {
+  text-align: center;
+  padding: 16px;
+  color: var(--ink-soft);
+  font-size: 14px;
+}
+.spinner {
+  width: 18px; height: 18px;
+  border: 2.5px solid #ead9bf;
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  display: inline-block;
+  vertical-align: -3px;
+  margin-right: 8px;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== 桌位图 ===== */
+.floorplan-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+.floorplan-wrap {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--bg);
+}
+#floorplan { width: 100%; height: auto; display: block; }
+.floorplan-hint { text-align: center; color: var(--ink-soft); font-size: 12px; margin-top: 10px; }
+
+/* ===== SVG 内元素（高亮覆盖层）===== */
+#floorplan image { user-select: none; pointer-events: none; }
+
+.halo { fill: #e8b4b4; }
+.hit-ring { stroke: #c0392b; }
+.hit-ring2 { stroke: #e74c3c; }
+
+/* 命中时显示高亮圈 */
+.table .halo, .table .hit-ring, .table .hit-ring2 { opacity: 0; }
+.table .halo, .table .hit-ring2 { transform-box: fill-box; transform-origin: center; }
+.table.hit .halo { opacity: 0.5; animation: pulse 1.4s ease-in-out infinite; }
+.table.hit .hit-ring { opacity: 1; }
+.table.hit .hit-ring2 { opacity: 1; animation: ring-pulse 1.4s ease-in-out infinite; }
+
+/* 主桌命中用金色高亮 */
+.head-table .hit-ring { stroke: var(--gold-deep); }
+.head-table .hit-ring2 { stroke: var(--gold); }
+.head-table .halo { fill: #f3d9a0; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.15; }
+}
+@keyframes ring-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(1.25); }
+}
+
+.foot { text-align: center; color: var(--ink-soft); font-size: 13px; margin-top: 22px; }
