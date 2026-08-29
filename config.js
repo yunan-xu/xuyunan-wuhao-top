@@ -8,6 +8,10 @@ window.CONFIG = {
   // 云函数 HTTP 网关地址（可选）。留空 = 纯本地查询（读取同目录 guests.json）
   API_URL: '',
 
+  // 名单加密盐（guests.json 为加密版：姓名 SHA-256 散列 + 身份 XOR 混淆）
+  // 请勿泄露此值 —— 泄露后名单可被离线破解
+  SALT: '96ce6890f0a3da2c9c02cc1b110b18b3',
+
   // 页面文案
   COUPLE_NAMES: 'XuYunan & WuHao',
   WEDDING_DATE: 'September 5, 2026',

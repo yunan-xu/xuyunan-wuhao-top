@@ -5,7 +5,7 @@
  *   1. 一键查看全体宾客名单 + 桌号 + 位置（列/排）
  *   2. 上传 Excel/CSV 覆盖导入（清空旧数据 + 写入新数据）
  *
- * 数据源优先级：云端数据库（listGuests/importGuests）→ 本地 guests.json 兜底（仅查看）
+ * 数据源优先级：云端数据库（listGuests/importGuests）
  */
 // 注意：云函数接口用动态 import，加载失败不影响页面其余功能
 async function callListGuests() {
@@ -62,21 +62,9 @@ async function loadGuests() {
     data = result.data;
     updatedAt = result.updatedAt;
   } else {
-    // 数据库未就绪，回退本地
-    try {
-      const res = await fetch('./guests.json?v=7');
-      if (res.ok) {
-        data = await res.json();
-        const lm = res.headers.get('Last-Modified');
-        updatedAt = lm ? new Date(lm).getTime() : null;
-      } else {
-        data = [];
-      }
-      source = '本地文件（数据库未初始化，云端不可用）';
-    } catch (e) {
-      data = [];
-      source = '本地文件（加载失败）';
-    }
+    // 云端不可用（加密后的本地 JSON 无法明文显示，不再回退）
+    data = [];
+    source = '云端数据库不可用（本地名单已加密，管理页仅支持云端数据）';
   }
 
   if (!data || data.length === 0) {

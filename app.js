@@ -9,7 +9,7 @@
  * 查询优先级：
  *   1. 输入 805100 -> 进入管理员页
  *   2. 服务端云函数 findSeat（数据库就绪时生效，动态加载，失败不影响本地兜底）
- *   3. 服务不可用 -> 回退到本地 guests.json 兜底
+ *   3. 服务不可用 -> 回退到本地加密 guests.json 兜底（散列匹配）
  */
 (function () {
   'use strict';
@@ -22,20 +22,26 @@
 
   const HEAD_NO = (C.HEAD_TABLE || { no: 28 }).no;
 
-  // ===== 2. 本地兜底数据 =====
+  // ===== 2. 本地兜底数据（加密版：姓名散列 + 身份 XOR）=====
   let localGuests = [];
-  fetch('./guests.json?v=7')
+  fetch('./guests.json?v=8')
     .then((r) => (r.ok ? r.json() : []))
     .then((arr) => { localGuests = Array.isArray(arr) ? arr : []; })
     .catch(() => {});
 
-  function searchLocal(name) {
+  // 加密版匹配：精确姓名散列命中（加密后不支持模糊搜索）
+  async function searchLocal(name) {
     const q = name.trim();
-    if (!q) return [];
-    const exact = localGuests.filter((g) => g.name === q);
-    if (exact.length > 0) return exact;
-    const lower = q.toLowerCase();
-    return localGuests.filter((g) => String(g.name).toLowerCase().includes(lower)).slice(0, 20);
+    if (!q || localGuests.length === 0) return [];
+    const h = await sha256Hex(q);
+    return localGuests
+      .filter((g) => g.h === h)
+      .map((g) => ({
+        name: q,
+        table_no: Number(g.no),
+        count: g.c || 1,
+        identity: g.i ? xorDecode(g.i) : '',
+      }));
   }
 
   // ===== 3. 服务器查询（CloudBase 云函数，动态加载）=====
@@ -53,6 +59,26 @@
   const input = document.getElementById('nameInput');
   const btn = document.getElementById('searchBtn');
   const resultArea = document.getElementById('resultArea');
+
+  // ===== 5. 加密名单匹配（guests.json 为加密版）=====
+  // 姓名：SHA-256(SALT+name) 散列匹配（不可逆，仅精确匹配）
+  // 身份：XOR 混淆 + Base64，可逆解密用于展示
+  async function sha256Hex(s) {
+    const data = new TextEncoder().encode(String(C.SALT || '') + s);
+    const buf = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  function xorDecode(b64) {
+    try {
+      const key = new TextEncoder().encode(String(C.SALT || ''));
+      const raw = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+      const dec = raw.map((b, i) => b ^ key[i % key.length]);
+      return new TextDecoder().decode(dec);
+    } catch (e) {
+      return '';
+    }
+  }
 
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, (c) => ({
@@ -123,7 +149,7 @@
     let data = null;
     data = await searchServer(name);
     if (data == null) {
-      data = searchLocal(name);
+      data = await searchLocal(name);
     }
 
     if (!data || data.length === 0) {
